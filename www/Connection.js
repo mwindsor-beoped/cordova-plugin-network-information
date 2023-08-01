@@ -17,7 +17,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *
-*/
+ */
 
 /**
  * Network status
@@ -29,6 +29,7 @@ module.exports = {
     CELL_2G: '2g',
     CELL_3G: '3g',
     CELL_4G: '4g',
+    CELL_5G: '5g',
     CELL: 'cellular',
     NONE: 'none'
 };
