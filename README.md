@@ -2,6 +2,7 @@
 title: Network Information
 description: Get information about wireless connectivity.
 ---
+
 <!--
 # license: Licensed to the Apache Software Foundation (ASF) under one
 #         or more contributor license agreements.  See the NOTICE file
@@ -25,7 +26,6 @@ description: Get information about wireless connectivity.
 
 [![Android Testsuite](https://github.com/apache/cordova-plugin-network-information/actions/workflows/android.yml/badge.svg)](https://github.com/apache/cordova-plugin-network-information/actions/workflows/android.yml) [![Chrome Testsuite](https://github.com/apache/cordova-plugin-network-information/actions/workflows/chrome.yml/badge.svg)](https://github.com/apache/cordova-plugin-network-information/actions/workflows/chrome.yml) [![iOS Testsuite](https://github.com/apache/cordova-plugin-network-information/actions/workflows/ios.yml/badge.svg)](https://github.com/apache/cordova-plugin-network-information/actions/workflows/ios.yml) [![Lint Test](https://github.com/apache/cordova-plugin-network-information/actions/workflows/lint.yml/badge.svg)](https://github.com/apache/cordova-plugin-network-information/actions/workflows/lint.yml)
 
-
 This plugin provides an implementation of an old version of the
 [Network Information API](http://www.w3.org/TR/2011/WD-netinfo-api-20110607/).
 It provides information about the device's cellular and
@@ -46,7 +46,7 @@ wifi connection, and whether the device has an internet connection.
 
 # Connection
 
-> The `connection` object, exposed via `navigator.connection`,  provides information about the device's cellular and wifi connection.
+> The `connection` object, exposed via `navigator.connection`, provides information about the device's cellular and wifi connection.
 
 ## Properties
 
@@ -60,6 +60,7 @@ wifi connection, and whether the device has an internet connection.
 - Connection.CELL_2G
 - Connection.CELL_3G
 - Connection.CELL_4G
+- Connection.CELL_5G
 - Connection.CELL
 - Connection.NONE
 
@@ -72,19 +73,20 @@ connection state, and type of connection.
 
 ```js
 function checkConnection() {
-    var networkState = navigator.connection.type;
+  var networkState = navigator.connection.type;
 
-    var states = {};
-    states[Connection.UNKNOWN]  = 'Unknown connection';
-    states[Connection.ETHERNET] = 'Ethernet connection';
-    states[Connection.WIFI]     = 'WiFi connection';
-    states[Connection.CELL_2G]  = 'Cell 2G connection';
-    states[Connection.CELL_3G]  = 'Cell 3G connection';
-    states[Connection.CELL_4G]  = 'Cell 4G connection';
-    states[Connection.CELL]     = 'Cell generic connection';
-    states[Connection.NONE]     = 'No network connection';
+  var states = {};
+  states[Connection.UNKNOWN] = 'Unknown connection';
+  states[Connection.ETHERNET] = 'Ethernet connection';
+  states[Connection.WIFI] = 'WiFi connection';
+  states[Connection.CELL_2G] = 'Cell 2G connection';
+  states[Connection.CELL_3G] = 'Cell 3G connection';
+  states[Connection.CELL_4G] = 'Cell 4G connection';
+  states[Connection.CELL_5G] = 'Cell 5G connection';
+  states[Connection.CELL] = 'Cell generic connection';
+  states[Connection.NONE] = 'No network connection';
 
-    alert('Connection type: ' + states[networkState]);
+  alert('Connection type: ' + states[networkState]);
 }
 
 checkConnection();
@@ -93,7 +95,7 @@ checkConnection();
 ### iOS Quirks
 
 - <iOS7 can't detect the type of cellular network connection.
-    - `navigator.connection.type` is set to `Connection.CELL` for all cellular data.
+  - `navigator.connection.type` is set to `Connection.CELL` for all cellular data.
 
 ### Windows Quirks
 
@@ -102,7 +104,7 @@ checkConnection();
 ### Browser Quirks
 
 - Browser can't detect the type of network connection.
-`navigator.connection.type` is always set to `Connection.UNKNOWN` when online.
+  `navigator.connection.type` is always set to `Connection.UNKNOWN` when online.
 
 # Network-related Events
 
@@ -117,7 +119,7 @@ not connected to the Internet.
 
 The `offline` event fires when a previously connected device loses a
 network connection so that an application can no longer access the
-Internet.  It relies on the same information as the Connection API,
+Internet. It relies on the same information as the Connection API,
 and fires when the value of `connection.type` becomes `NONE`.
 
 Applications typically should use `document.addEventListener` to
@@ -126,10 +128,10 @@ attach an event listener once the `deviceready` event fires.
 ### Quick Example
 
 ```js
-document.addEventListener("offline", onOffline, false);
+document.addEventListener('offline', onOffline, false);
 
 function onOffline() {
-    // Handle the offline event
+  // Handle the offline event
 }
 ```
 
@@ -162,10 +164,10 @@ attach an event listener once the `deviceready` event fires.
 ### Quick Example
 
 ```js
-document.addEventListener("online", onOnline, false);
+document.addEventListener('online', onOnline, false);
 
 function onOnline() {
-    // Handle the online event
+  // Handle the online event
 }
 ```
 
@@ -185,47 +187,52 @@ The code examples in this section show examples of changing app behavior using t
 
 To start with, create a new FileEntry object (data.txt) to use for sample data. Call this function from the `deviceready` handler.
 
->*Note* This code example requires the File plugin.
+> _Note_ This code example requires the File plugin.
 
 ```js
 var dataFileEntry;
 
 function createSomeData() {
-
-    window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, function (fs) {
-
-        console.log('file system open: ' + fs.name);
-        // Creates a new file or returns an existing file.
-        fs.root.getFile("data.txt", { create: true, exclusive: false }, function (fileEntry) {
-
+  window.requestFileSystem(
+    window.TEMPORARY,
+    5 * 1024 * 1024,
+    function (fs) {
+      console.log('file system open: ' + fs.name);
+      // Creates a new file or returns an existing file.
+      fs.root.getFile(
+        'data.txt',
+        { create: true, exclusive: false },
+        function (fileEntry) {
           dataFileEntry = fileEntry;
-
-        }, onErrorCreateFile);
-
-    }, onErrorLoadFs);
+        },
+        onErrorCreateFile
+      );
+    },
+    onErrorLoadFs
+  );
 }
 ```
 
 Next, add listeners for the online and offline events in the `deviceready` handler.
 
 ```js
-document.addEventListener("offline", onOffline, false);
-document.addEventListener("online", onOnline, false);
+document.addEventListener('offline', onOffline, false);
+document.addEventListener('online', onOnline, false);
 ```
 
 The app's `onOnline` function handles the online event. In the event handler, check the current network state. In this app, treat any connection type as good except Connection.NONE. If you have a connection, you try to upload a file.
 
 ```js
 function onOnline() {
-    // Handle the online event
-    var networkState = navigator.connection.type;
+  // Handle the online event
+  var networkState = navigator.connection.type;
 
-    if (networkState !== Connection.NONE) {
-        if (dataFileEntry) {
-            tryToUploadFile();
-        }
+  if (networkState !== Connection.NONE) {
+    if (dataFileEntry) {
+      tryToUploadFile();
     }
-    display('Connection type: ' + networkState);
+  }
+  display('Connection type: ' + networkState);
 }
 ```
 
@@ -233,73 +240,76 @@ When the online event fires in the preceding code, call the app's `tryToUploadFi
 
 If the upload fails, then call the app's `offlineWrite` function to save the current data somewhere.
 
->*Note* For simplicity, file reading & writing was omitted. Refer to the [cordova-plugin-file](https://github.com/apache/cordova-plugin-file#cordova-plugin-file) documentation for more information on file handling.
+> _Note_ For simplicity, file reading & writing was omitted. Refer to the [cordova-plugin-file](https://github.com/apache/cordova-plugin-file#cordova-plugin-file) documentation for more information on file handling.
 
 ```js
 function tryToUploadFile() {
-    // !! Assumes variable fileURL contains a valid URL to a text file on the device,
-    var fileURL = getDataFileEntry().toURL();
-    
-    getFileBlobSomehow(fileURL, function(fileBlob) {
-        var success = function (r) {
-            console.log("Response = " + r.response);
-            display("Uploaded. Response: " + r.response);
-        };
+  // !! Assumes variable fileURL contains a valid URL to a text file on the device,
+  var fileURL = getDataFileEntry().toURL();
 
-        var fail = function (error) {
-            console.log("An error has occurred: Code = " + error.code || error.status);
-            offlineWrite("Failed to upload: some offline data");
-        }
+  getFileBlobSomehow(fileURL, function (fileBlob) {
+    var success = function (r) {
+      console.log('Response = ' + r.response);
+      display('Uploaded. Response: ' + r.response);
+    };
 
-        var xhr = new XMLHttpRequest();
+    var fail = function (error) {
+      console.log(
+        'An error has occurred: Code = ' + error.code || error.status
+      );
+      offlineWrite('Failed to upload: some offline data');
+    };
 
-        xhr.onerror = fail;
-        xhr.ontimeout = fail;
-        xhr.onload = function() {
-            // If the response code was successful...
-            if (xhr.status >= 200 && xhr.status < 400) {
-                success(xhr);
-            }
-            else {
-                fail(xhr)
-            }
-        }
+    var xhr = new XMLHttpRequest();
 
-        // Make sure you add the domain of your server URL to the
-        // Content-Security-Policy <meta> element in index.html.
-        xhr.open("POST", encodeURI(SERVER));
+    xhr.onerror = fail;
+    xhr.ontimeout = fail;
+    xhr.onload = function () {
+      // If the response code was successful...
+      if (xhr.status >= 200 && xhr.status < 400) {
+        success(xhr);
+      } else {
+        fail(xhr);
+      }
+    };
 
-        xhr.setRequestHeader("Content-Type", "text/plain");
+    // Make sure you add the domain of your server URL to the
+    // Content-Security-Policy <meta> element in index.html.
+    xhr.open('POST', encodeURI(SERVER));
 
-        // The server request handler could read this header to
-        // set the filename.
-        xhr.setRequestHeader("X-Filename", fileURL.substr(fileURL.lastIndexOf("/") + 1));
+    xhr.setRequestHeader('Content-Type', 'text/plain');
 
-        xhr.send(fileBlob);
-    });
-};
+    // The server request handler could read this header to
+    // set the filename.
+    xhr.setRequestHeader(
+      'X-Filename',
+      fileURL.substr(fileURL.lastIndexOf('/') + 1)
+    );
+
+    xhr.send(fileBlob);
+  });
+}
 ```
 
 Here is the code for the `offlineWrite` function.
 
->*Note* This code examples requires the File plugin.
+> _Note_ This code examples requires the File plugin.
 
 ```js
 function offlineWrite(offlineData) {
-    // Create a FileWriter object for our FileEntry.
-    dataFileEntry.createWriter(function (fileWriter) {
+  // Create a FileWriter object for our FileEntry.
+  dataFileEntry.createWriter(function (fileWriter) {
+    fileWriter.onwriteend = function () {
+      console.log('Successful file write...');
+      display(offlineData);
+    };
 
-        fileWriter.onwriteend = function () {
-            console.log("Successful file write...");
-            display(offlineData);
-        };
+    fileWriter.onerror = function (e) {
+      console.log('Failed file write: ' + e.toString());
+    };
 
-        fileWriter.onerror = function (e) {
-            console.log("Failed file write: " + e.toString());
-        };
-
-        fileWriter.write(offlineData);
-    });
+    fileWriter.write(offlineData);
+  });
 }
 ```
 
@@ -307,7 +317,7 @@ If the offline event occurs, just do something like notify the user (for this ex
 
 ```js
 function onOffline() {
-    // Handle the offline event
-    console.log("lost connection");
+  // Handle the offline event
+  console.log('lost connection');
 }
 ```
