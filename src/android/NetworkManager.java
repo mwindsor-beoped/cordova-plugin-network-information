@@ -252,6 +252,7 @@ public class NetworkManager extends CordovaPlugin {
                 } else {
                     type = lastTypeOfNetwork;
                 }
+            }
         } else {
             type = TYPE_NONE;
         }
