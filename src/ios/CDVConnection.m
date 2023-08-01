@@ -60,33 +60,32 @@
             } else {
                 if ([[[UIDevice currentDevice] systemVersion] compare:@"7.0" options:NSNumericSearch] != NSOrderedAscending) {
                     CTTelephonyNetworkInfo *telephonyInfo = [CTTelephonyNetworkInfo new];
-                    NSString *currentRadioAccessTechnology = radioAccessNameIn(telephonyInfo);
-                    if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
+                    if ([telephonyInfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
                         return @"2g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyEdge]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyEdge]) {
                         return @"2g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyWCDMA]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyWCDMA]) {
                         return @"3g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyHSDPA]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyHSDPA]) {
                         return @"3g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyHSUPA]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyHSUPA]) {
                         return @"3g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyCDMA1x]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyCDMA1x]) {
                         return @"3g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]) {
                         return @"3g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]) {
                         return @"3g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]) {
                         return @"3g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyeHRPD]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyeHRPD]) {
                         return @"3g";
-                    } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyLTE]) {
+                    } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyLTE]) {
                         return @"4g";
                     } else if (@available(iOS 14.1, *)) {
-                        if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyNRNSA]) {
+                        if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyNRNSA]) {
                             return @"5g";
-                        } else if ([currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyNR]) {
+                        } else if ([telephonyInfo.currentRadioAccessTechnology  isEqualToString:CTRadioAccessTechnologyNR]) {
                             return @"5g";
                         }
                     }
@@ -165,15 +164,6 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onPause) name:UIApplicationDidEnterBackgroundNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onResume) name:UIApplicationWillEnterForegroundNotification object:nil];
     }
-}
-
-static NSString *radioAccessNameIn(CTTelephonyNetworkInfo *networkInfo) {
-  if (@available(iOS 13.0, *)) {
-    if (networkInfo.currentRadioAccessTechnology == nil && networkInfo.dataServiceIdentifier) {
-        return [networkInfo.serviceCurrentRadioAccessTechnology objectForKey:networkInfo.dataServiceIdentifier];
-    }
-  }
-  return networkInfo.currentRadioAccessTechnology;
 }
 
 @end
