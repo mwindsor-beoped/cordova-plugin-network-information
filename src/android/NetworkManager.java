@@ -92,9 +92,6 @@ public class NetworkManager extends CordovaPlugin {
     public static final String TYPE_5G = "5g";
     public static final String TYPE_NONE = "none";
 
-    public static final int NETWORK_TYPE_NR = 20;
-    public static final int NETWORK_TYPE_LTE_CA = 19;
-
     private static final String LOG_TAG = "NetworkManager";
 
     private CallbackContext connectionCallbackContext;
@@ -117,6 +114,7 @@ public class NetworkManager extends CordovaPlugin {
         this.sockMan = (ConnectivityManager) cordova.getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         this.telMan = (TelephonyManager) cordova.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
         this.telMan.listen( phoneStateListener, LISTEN_SERVICE_STATE);
+        this.telMan.listen( displayInfoListener, LISTEN_DISPLAY_INFO_CHANGED);
         this.connectionCallbackContext = null;
 
         this.registerConnectivityActionReceiver();
@@ -362,7 +360,6 @@ public class NetworkManager extends CordovaPlugin {
     private boolean is4G(int type, String name){
         return  type == TelephonyManager.NETWORK_TYPE_LTE && name.equals(FOUR_G) ||     // api<11: replace by 13
                 type == TelephonyManager.NETWORK_TYPE_IWLAN ||  // api<25: replace by 18
-                type == NETWORK_TYPE_LTE_CA || // LTE_CA
                 name.equals(LTE) ||
                 name.equals(UMB) ||
                 name.equals(HSPA_PLUS) ||
@@ -371,7 +368,7 @@ public class NetworkManager extends CordovaPlugin {
 
     private boolean is5G(int type, String name){
         return  type == TelephonyManager.NETWORK_TYPE_LTE && name.equals(FIVE_G) ||     // api<11: replace by 13
-                type == NETWORK_TYPE_NR ||  // api<25: replace by 18
+                type == TelephonyManager.NETWORK_TYPE_NR ||  // api<25: replace by 18
                 name.equals(FIVE_G) ||
                 name.equals(NR);
     }
@@ -380,6 +377,17 @@ public class NetworkManager extends CordovaPlugin {
         @Override
         public void onServiceStateChanged(ServiceState serviceState) {
             NetworkManager.this.isNrAvailable = isNrAvailable(serviceState);
+            updateConnectionInfo(sockMan.getActiveNetworkInfo(), true);
+        }
+    };
+
+    private DisplayInfoListener displayInfoListener = new DisplayInfoListener() {
+        @Override
+        public void onDisplayInfoChanged(TelephonyDisplayInfo  telphoneDisplayInfo) {
+            NetworkManager.this.isNrAvailable = (telphoneDisplayInfo == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_LTE_ADVANCED_PRO ||
+                telphoneDisplayInfo == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA || 
+                TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE
+            );
             updateConnectionInfo(sockMan.getActiveNetworkInfo(), true);
         }
     };
