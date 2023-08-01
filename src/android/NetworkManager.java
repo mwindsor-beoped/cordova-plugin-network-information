@@ -38,6 +38,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.telephony.TelephonyDisplayInfo;
 import android.telephony.ServiceState;
 
 import androidx.core.app.ActivityCompat;
@@ -113,7 +114,6 @@ public class NetworkManager extends CordovaPlugin {
         super.initialize(cordova, webView);
         this.sockMan = (ConnectivityManager) cordova.getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         this.telMan = (TelephonyManager) cordova.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
-        this.telMan.listen( phoneStateListener, LISTEN_SERVICE_STATE);
         this.telMan.listen( displayInfoListener, LISTEN_DISPLAY_INFO_CHANGED);
         this.connectionCallbackContext = null;
 
@@ -374,33 +374,15 @@ public class NetworkManager extends CordovaPlugin {
                 name.equals(NR);
     }
 
-    private PhoneStateListener phoneStateListener = new PhoneStateListener() {
-        @Override
-        public void onServiceStateChanged(ServiceState serviceState) {
-            NetworkManager.this.isNrAvailable = isNrAvailable(serviceState);
-            updateConnectionInfo(sockMan.getActiveNetworkInfo(), true);
-        }
-    };
-
     private DisplayInfoListener displayInfoListener = new DisplayInfoListener() {
         @Override
-        public void onDisplayInfoChanged(TelephonyDisplayInfo  telphoneDisplayInfo) {
-            NetworkManager.this.isNrAvailable = (telphoneDisplayInfo == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_LTE_ADVANCED_PRO ||
-                telphoneDisplayInfo == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA || 
-                TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE
+        public void onDisplayInfoChanged(TelephonyDisplayInfo  telephonyDisplayInfo) {
+            NetworkManager.this.isNrAvailable = (
+                telephonyDisplayInfo.overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_LTE_ADVANCED_PRO ||
+                telephonyDisplayInfo.overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA || 
+                telephonyDisplayInfo.overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE
             );
             updateConnectionInfo(sockMan.getActiveNetworkInfo(), true);
         }
     };
-
-    /**
-     * Determine if NR network is available, for detect sdk < 30
-     *
-     * @param serviceState the ServiceState from PhoneStateListener
-     * @return flag boolean if NR is available
-     */
-    private boolean isNrAvailable(ServiceState serviceState ){
-        String stateStr = serviceState.toString();
-        return stateStr.contains("nrState=CONNECTED") || stateStr.contains("isNrAvailable = true");
-    }
 }
