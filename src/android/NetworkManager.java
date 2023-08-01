@@ -36,7 +36,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 import android.telephony.TelephonyDisplayInfo;
 import android.telephony.ServiceState;
@@ -44,8 +44,6 @@ import android.telephony.ServiceState;
 import androidx.core.app.ActivityCompat;
 
 import java.util.Locale;
-
-import static android.telephony.PhoneStateListener.LISTEN_SERVICE_STATE;
 
 public class NetworkManager extends CordovaPlugin {
 
@@ -113,8 +111,9 @@ public class NetworkManager extends CordovaPlugin {
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
         this.sockMan = (ConnectivityManager) cordova.getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        this.telMan = (TelephonyManager) cordova.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
-        this.telMan.listen( displayInfoListener, LISTEN_DISPLAY_INFO_CHANGED);
+        this.telMan = (TelephonyManager) cordova.getActivity().getSystemService(Context.TELEPHONY_SERVICE);     
+        this.telMan.registerTelephonyCallback(cordova.getThreadPool(), new DisplayInfoListener());
+        
         this.connectionCallbackContext = null;
 
         this.registerConnectivityActionReceiver();
@@ -374,13 +373,13 @@ public class NetworkManager extends CordovaPlugin {
                 name.equals(NR);
     }
 
-    private DisplayInfoListener displayInfoListener = new DisplayInfoListener() {
-        @Override
-        public void onDisplayInfoChanged(TelephonyDisplayInfo  telephonyDisplayInfo) {
+    class DisplayInfoListener extends TelephonyCallback {
+        public void onDisplayInfoChanged(TelephonyDisplayInfo telephonyDisplayInfo) {
+            int overrideNetworkType = telephonyDisplayInfo.getOverrideNetworkType();
             NetworkManager.this.isNrAvailable = (
-                telephonyDisplayInfo.overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_LTE_ADVANCED_PRO ||
-                telephonyDisplayInfo.overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA || 
-                telephonyDisplayInfo.overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE
+                overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_LTE_ADVANCED_PRO ||
+                overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA || 
+                overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE
             );
             updateConnectionInfo(sockMan.getActiveNetworkInfo(), true);
         }
